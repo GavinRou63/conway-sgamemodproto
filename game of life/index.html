@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.min.js"
+    integrity="sha512-WIklPM6qPCIp6d3fSSr90j+1unQHUOoWDS4sdTiR8gxUTnyZ8S2Mr8e10sKKJ/bhJgpAa/qG068RDkg6fIlNFA=="
+    crossorigin="anonymous"
+  ></script>
+  <script>
+    let boxWid = 20; 
+    let tableArr = []; 
+    let fps = 30; 
+    gridLn = 30; 
+    let state = 0; 
+    
+    let startBtn;
+    
+    
+    for (let r = 0; r < gridLn; r++) {
+      let rowArr = [];
+      for (let c = 0; c < gridLn; c++) {
+        rowArr.push(0);
+      }
+      tableArr.push(rowArr);
+    }
+    
+    function mousePressed() {
+      let row = (mouseX - (mouseX % boxWid)) / boxWid; 
+      let col = (mouseY - (mouseY % boxWid)) / boxWid; 
+      if (row <= gridLn && col <= gridLn) {
+        tableArr[row][col] = -1 * tableArr[row][col] + 1; 
+        draw(); 
+      }
+    }
+    
+    function startGame() {
+      if (state == 0) { 
+        fps = 10;
+        frameRate(fps);
+        state = 1;
+      }
+    }
+
+    function setup() { 
+      frameRate(fps);
+      createCanvas(1500, 1500);
+      button = createButton("Start the Game of Life");
+      button.position(gridLn * boxWid + 20, 50);
+      button.mousePressed(startGame);
+    }
+
+    function checkNeighbors(row, col) {
+     
+      
+      let count = 0;
+      
+      for (let i = -1; i < 2; i++) { 
+        if (col + i >= 0 && col + i < gridLn - 1) { 
+          if (row > 0 && tableArr[row - 1][col + i] == 1) {
+            count++;
+          }
+          if (row < gridLn - 1 && tableArr[row + 1][col + i] == 1) { 
+            count++;
+          }
+        }
+      }
+      
+      if (col - 1 >= 0 && tableArr[row][col - 1] == 1) { 
+        count++;
+      }
+      if (col + 1 < gridLn - 1 && tableArr[row][col + 1] == 1) { 
+        count++;
+      }
+
+      return count;
+    }
+
+    function draw() {
+      tableArr.forEach((rowArr, row) => {
+        rowArr.forEach((colVal, col) => {
+          fill(colVal == 1 ? "black" : "transparent"); 
+          rect(row * boxWid, col * boxWid, boxWid, boxWid);
+        });
+      });
+      if (state == 1) {
+        
+        let newTable = []; 
+        tableArr.forEach((rowArr, row) => {
+          let newRow = [];
+          rowArr.forEach((colVal, col) => {
+            let cellVal = colVal;
+            let nCount = checkNeighbors(row, col);
+            if (cellVal == 1 && nCount < 2) { 
+              cellVal = 0;
+            } else if (cellVal == 1 && nCount > 3) { 
+              cellVal = 0;
+            } else if (cellVal == 0 && nCount == 3) { 
+              cellVal = 1;
+            }
+
+            newRow.push(cellVal);
+          });
+          newTable.push(newRow);
+        });
+        tableArr = newTable; 
+      }
+    }
+  </script>
+
+
+
+</head>
